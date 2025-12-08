@@ -31,6 +31,7 @@ function App() {
   const { t } = useTranslation()
   const [profile, setProfile] = useState<Profile | undefined>()
   const [config, setConfig] = useState<ConfigWrapper>(new ConfigWrapper({}, new Map()))
+
   useEffect(() => {
     // --- 自动缩放逻辑开始 ---
     const HIGH_RES_THRESHOLD = 2560; // 定义高分屏阈值
@@ -43,7 +44,22 @@ function App() {
     };
     applyScaling();
     // --- 自动缩放逻辑结束 ---
+
+    // --- 随机播放背景音乐 ---
+    const musicFiles = [
+      '太聪明-陈绮贞.mp3',
+      '幹物女(WeiWei)- 封茗囧菌.mp3',
+      '我们的歌-刘大拿.mp3'
+    ];
+    
+    const randomIndex = Math.floor(Math.random() * musicFiles.length); // 随机选择一个音频
+    const audio = new Audio(`/music/${musicFiles[randomIndex]}`); // 使用动态路径加载音频
+    audio.loop = true;  // 设置循环播放
+    audio.play();  // 播放音乐
+    // --- 结束 ---
+
     if (ref.current) return
+
     if (getCookie('token')?.length ?? 0 > 0) {
       client.user.profile.get({
         headers: headersWithAuth()
@@ -58,6 +74,7 @@ function App() {
         }
       })
     }
+    
     const config = sessionStorage.getItem('config')
     if (config) {
       const configObj = JSON.parse(config)
@@ -74,7 +91,9 @@ function App() {
     }
     ref.current = true
   }, [])
+
   const favicon = `${process.env.API_URL}/favicon`;
+
   return (
     <>
       <ClientConfigContext.Provider value={config}>
@@ -119,7 +138,6 @@ function App() {
             <RouteMe path="/settings" paddingClassName='mx-4' requirePermission>
               <Settings />
             </RouteMe>
-
 
             <RouteMe path="/writing" paddingClassName='mx-4' requirePermission>
               <WritingPage />
@@ -207,11 +225,11 @@ function RouteMe({ path, children, headerComponent, paddingClassName, requirePer
           </Padding>
           <Footer />
         </>)
+
       }}
     </Route>
   )
 }
-
 
 function RouteWithIndex({ path, children }:
   { path: PathPattern, children: (params: DefaultParams, TOC: () => JSX.Element, clean: (id: string) => void) => React.ReactNode }) {
