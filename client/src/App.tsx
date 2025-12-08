@@ -31,6 +31,8 @@ function App() {
   const { t } = useTranslation()
   const [profile, setProfile] = useState<Profile | undefined>()
   const [config, setConfig] = useState<ConfigWrapper>(new ConfigWrapper({}, new Map()))
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);  // 添加音频元素状态
+  const [isPlaying, setIsPlaying] = useState(false); // 音频播放状态
 
   useEffect(() => {
     // --- 自动缩放逻辑开始 ---
@@ -55,7 +57,7 @@ function App() {
     const randomIndex = Math.floor(Math.random() * musicFiles.length); // 随机选择一个音频
     const audio = new Audio(`/music/${musicFiles[randomIndex]}`); // 使用动态路径加载音频
     audio.loop = true;  // 设置循环播放
-    audio.play();  // 播放音乐
+    setAudio(audio); // 存储音频元素
     // --- 结束 ---
 
     if (ref.current) return
@@ -91,6 +93,14 @@ function App() {
     }
     ref.current = true
   }, [])
+
+  // 播放音频
+  const playAudio = () => {
+    if (audio && !isPlaying) {
+      audio.play();
+      setIsPlaying(true);  // 更新音频播放状态
+    }
+  };
 
   const favicon = `${process.env.API_URL}/favicon`;
 
@@ -199,6 +209,11 @@ function App() {
               <ErrorPage error={t('error.not_found')} />
             </RouteMe>
           </Switch>
+
+          {/* 播放音乐按钮 */}
+          <div className="play-music-button" onClick={playAudio}>
+            {isPlaying ? "音乐正在播放" : "点击播放背景音乐"}
+          </div>
         </ProfileContext.Provider>
       </ClientConfigContext.Provider>
     </>
